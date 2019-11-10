@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <AWSProjectType>Lambda</AWSProjectType>
+    <AssemblyName>Todo.Projects</AssemblyName>
+    <RootNamespace>Todo.Projects</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Amazon.Lambda.Core" Version="1.1.0" />
+    <PackageReference Include="Amazon.Lambda.Serialization.Json" Version="1.7.0" />
+    <PackageReference Include="Amazon.Lambda.APIGatewayEvents" Version="1.2.0" />
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.3.101.88" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\LambdaCQRS.Core\LambdaCQRS.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

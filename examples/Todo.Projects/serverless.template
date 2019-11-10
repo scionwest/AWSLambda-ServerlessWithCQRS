@@ -1,0 +1,134 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Transform": "AWS::Serverless-2016-10-31",
+  "Description": "An AWS Serverless Application.",
+
+  "Resources": {
+
+    "CreateProjectCommand": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "Todo.Projects::Todo.Projects.Commands.CreateProjectCommand::RunHandler",
+        "Runtime": "dotnetcore2.1",
+        "CodeUri": "",
+        "MemorySize": 512,
+        "Timeout": 30,
+        "Role": null,
+        "Policies": [ "AWSLambdaFullAccess" ],
+        "Events": {
+          "RootGet": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/projects",
+              "Method": "POST"
+            }
+          }
+        }
+      }
+    },
+
+    "DeleteProjectCommand": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "Todo.Projects::Todo.Projects.Commands.DeleteProjectCommand::RunHandler",
+        "Runtime": "dotnetcore2.1",
+        "CodeUri": "",
+        "MemorySize": 512,
+        "Timeout": 30,
+        "Role": null,
+        "Policies": [ "AWSLambdaFullAccess" ],
+        "Events": {
+          "RootGet": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/projects",
+              "Method": "DELETE"
+            }
+          }
+        }
+      }
+    },
+
+    "GetProjectsQuery": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "Todo.Projects::Todo.Projects.Queries.GetProjectsQuery::RunHandler",
+        "Runtime": "dotnetcore2.1",
+        "CodeUri": "",
+        "MemorySize": 512,
+        "Timeout": 30,
+        "Role": null,
+        "Policies": [ "AWSLambdaFullAccess" ],
+        "Events": {
+          "RootGet": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/projects",
+              "Method": "GET"
+            }
+          }
+        }
+      }
+    },
+
+    "GetProjectQuery": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "Handler": "Todo.Projects::Todo.Projects.Queries.GetProjectQuery::RunHandler",
+        "Runtime": "dotnetcore2.1",
+        "CodeUri": "",
+        "MemorySize": 512,
+        "Timeout": 30,
+        "Role": null,
+        "Policies": [ "AWSLambdaFullAccess" ],
+        "Events": {
+          "RootGet": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/projects/{projectId}",
+              "Method": "GET"
+            }
+          }
+        }
+      }
+    },
+
+    "ProjectsTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName": "lambdacqrs-dev-todoprojects",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "Id",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "OwningUser",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "OwningUser",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "Id",
+            "KeyType": "RANGE"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 2,
+          "WriteCapacityUnits": 2
+        }
+      }
+    }
+  },
+
+	"Outputs" : {
+		"ApiURL" : {
+			"Description" : "API endpoint URL for Prod environment",
+			"Value" : { "Fn::Sub" : "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/" }
+		}
+	}
+}
