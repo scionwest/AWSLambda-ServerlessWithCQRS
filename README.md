@@ -21,6 +21,8 @@ The following routes are usable
   - The following JSON body can be used when posting: `{ "Title": "Hello World", "Type": "List", "Status": "Active", "Priority": "Medium", "PercentageCompleted": "50" }`
   - The route to query the created record will be included in the `Location` header from the HTTP Response.
   - All records have a hard-coded username of `janedoe` for the examples. In the future, authorization mechanics will be added for fetching user information.
+- HTTP DELETE: `/projects/{projectId}`
+  - Deletes a Project providing that it can find a matching ProjectId for `janedoe`.
 
 ### Queries
 - HTTP GET: `/projects`
