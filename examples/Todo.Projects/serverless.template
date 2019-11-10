@@ -41,7 +41,7 @@
           "RootGet": {
             "Type": "Api",
             "Properties": {
-              "Path": "/projects",
+              "Path": "/projects/{projectId}",
               "Method": "DELETE"
             }
           }
