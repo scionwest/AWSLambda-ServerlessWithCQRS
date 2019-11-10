@@ -15,7 +15,7 @@ namespace Todo.Projects.Commands
         protected override async Task<HandlerResponse> CommandHandler()
         {
             IProjectRepository repository = base.Services.GetRequiredService<IProjectRepository>();
-            string username = "janedoe";
+            string username = this.ProxyRequest.Headers["username"] ?? "janedoe";
 
             string projectId = base.ProxyRequest.PathParameters["projectId"];
             await repository.DeleteProjectAsync(username, projectId);

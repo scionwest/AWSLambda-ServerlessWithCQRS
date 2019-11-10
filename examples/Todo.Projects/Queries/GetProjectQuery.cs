@@ -18,10 +18,10 @@ namespace Todo.Projects.Queries
         {
             IProjectRepository repository = base.Services.GetRequiredService<IProjectRepository>();
 
-            string user = "janedoe";
+            string username = this.ProxyRequest.Headers["username"] ?? "janedoe";
             string projectId = base.ProxyRequest.PathParameters["projectId"];
 
-            Project project = await repository.GetProjectByIdForUserAsync(user, projectId);
+            Project project = await repository.GetProjectByIdForUserAsync(username, projectId);
 
             return this.StatusOk(project);
         }

@@ -20,9 +20,9 @@ namespace Todo.Projects.Queries
         protected override async Task<HandlerResponse> QueryHandler()
         {
             IProjectRepository repository = base.Services.GetRequiredService<IProjectRepository>();
-            string user = "janedoe";
+            string username = this.ProxyRequest.Headers["username"] ?? "janedoe";
 
-            Project[] projects = await repository.GetProjectsForUserAsync(user);
+            Project[] projects = await repository.GetProjectsForUserAsync(username);
 
             return this.StatusOk(projects);
         }

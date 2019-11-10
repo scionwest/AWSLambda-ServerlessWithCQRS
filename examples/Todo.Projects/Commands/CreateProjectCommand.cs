@@ -18,7 +18,7 @@ namespace Todo.Projects.Commands
         protected override async Task<HandlerResponse> CommandHandler(CreateProjectRequest requestBody)
         {
             IProjectRepository repository = base.Services.GetRequiredService<IProjectRepository>();
-            string username = "janedoe";
+            string username = this.ProxyRequest.Headers["username"] ?? "janedoe";
 
             var newProject = new Project(requestBody.Id, "janedoe", requestBody.Priority, requestBody.Status, requestBody.Title, requestBody.Type);
             if (requestBody.IsFlagged)
