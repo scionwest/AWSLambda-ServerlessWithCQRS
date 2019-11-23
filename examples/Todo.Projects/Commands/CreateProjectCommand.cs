@@ -1,55 +1,24 @@
-﻿using LambdaCQRS;
-using Microsoft.Extensions.DependencyInjection;
-using System.Net;
-using System.Threading.Tasks;
-using Todo.Projects.Domain;
-using Todo.Projects.Dtos;
+﻿using System;
 
-namespace Todo.Projects.Commands
+namespace Todo.Projects.Dtos
 {
-    public class CreateProjectCommand : ApiGatewayCommandHandler<CreateProjectRequest>
+    public class CreateProjectCommand
     {
-        protected override Task RegisterHandlerServices(IServiceCollection services)
-        {
-            services.AddTodoServices();
-            return base.RegisterHandlerServices(services);
-        }
+        public Guid Id { get; } = Guid.NewGuid();
+        public string Title { get; set; }
 
-        protected override async Task<HandlerResponse> CommandHandler(CreateProjectRequest requestBody)
-        {
-            IProjectRepository repository = base.Services.GetRequiredService<IProjectRepository>();
-            if (!this.ProxyRequest.Headers.TryGetValue("username", out string username))
-            {
-                username = "janedoe";
-            }
+        public bool IsFlagged { get; set; }
 
-            var newProject = new Project(requestBody.Id, "janedoe", requestBody.Priority, requestBody.Status, requestBody.Title, requestBody.Type);
-            if (requestBody.IsFlagged)
-            {
-                newProject.FlagProject();
-            }
-            newProject.SetPercentageComplete(requestBody.PercentageCompleted);
+        public string Type { get; set; }
 
-            if (requestBody.StartDate.HasValue)
-            {
-                newProject.StartProject(requestBody.StartDate.Value);
-            }
+        public DateTime? StartDate { get; set; }
 
-            if (requestBody.TargetDate.HasValue)
-            {
-                newProject.SetTargetDate(requestBody.TargetDate.Value);
-            }
+        public DateTime? TargetDate { get; set; }
 
-            try
-            {
-                await repository.CreateProjectAsync(username, newProject);
-                return this.StatusCreated(newProject.Id);
-            }
-            catch (System.Exception ex)
-            {
-                this.Logger.LogLine(ex.Message);
-                return new HandlerResponse((int)HttpStatusCode.BadRequest);
-            }
-        }
+        public string Status { get; set; }
+
+        public short PercentageCompleted { get; set; }
+
+        public string Priority { get; set; }
     }
 }

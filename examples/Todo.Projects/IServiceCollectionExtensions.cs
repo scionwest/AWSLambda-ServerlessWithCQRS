@@ -9,7 +9,7 @@ namespace Todo.Projects
         public static IServiceCollection AddTodoServices(this IServiceCollection services)
         {
             services.AddSingleton<IAmazonDynamoDB, AmazonDynamoDBClient>();
-            services.AddSingleton<IProjectRepository, ProjectRepository>();
+            services.AddSingleton<IProjectRepository, ProjectDynamoRepository>();
 
             return services;
         }

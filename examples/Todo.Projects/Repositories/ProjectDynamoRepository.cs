@@ -9,12 +9,12 @@ using Todo.Projects.Domain;
 
 namespace Todo.Projects.Commands
 {
-    public class ProjectRepository : IProjectRepository
+    public class ProjectDynamoRepository : IProjectRepository
     {
         private readonly IAmazonDynamoDB dynamoDB;
         private readonly string projectsTableName;
 
-        public ProjectRepository(IAmazonDynamoDB dynamoDB, IConfiguration configuration)
+        public ProjectDynamoRepository(IAmazonDynamoDB dynamoDB, IConfiguration configuration)
         {
             this.dynamoDB = dynamoDB;
             this.projectsTableName = configuration["AWS:DynamoDb:ProjectsTable:TableName"];
@@ -39,10 +39,8 @@ namespace Todo.Projects.Commands
             project[nameof(Project.PercentageCompleted)] = newProject.PercentageCompleted;
             project[nameof(Project.Priority)] = newProject.Priority.ToString();
             project[nameof(Project.StartDate)] = newProject.StartDate;
-            project[nameof(Project.Status)] = newProject.Status.ToString();
             project[nameof(Project.TargetDate)] = newProject.TargetDate;
             project[nameof(Project.Title)] = newProject.Title;
-            project[nameof(Project.Type)] = newProject.Type.ToString();
 
             DateTime auditDate = DateTime.UtcNow;
             project[nameof(Project.CreateDate)] = auditDate;
@@ -85,7 +83,7 @@ namespace Todo.Projects.Commands
             // Convert the NoSql document into a domain model.
             Dictionary<string, AttributeValue> document = results.Item;
             Guid id = Guid.Parse(document["Id"].S);
-            var project = new Project(id, document["OwningUser"].S, document["Priority"].S, document["Status"].S, document["Title"].S, document["Type"].S);
+            var project = new Project(id, document["OwningUser"].S, document["Priority"].S, document["Title"].S);
 
             return project;
         }
@@ -106,7 +104,7 @@ namespace Todo.Projects.Commands
             foreach (Dictionary<string, AttributeValue> document in results.Items)
             {
                 Guid id = Guid.Parse(document["Id"].S);
-                var project = new Project(id, document["OwningUser"].S, document["Priority"].S, document["Status"].S, document["Title"].S, document["Type"].S);
+                var project = new Project(id, document["OwningUser"].S, document["Priority"].S, document["Title"].S);
                 projects.Add(project);
             }
 

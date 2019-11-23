@@ -26,7 +26,7 @@ namespace Todo.Projects
 
             request = new APIGatewayProxyRequest { Headers = new Dictionary<string, string>() };
             context = new TestLambdaContext();
-            var functions = new GetProjectsQuery();
+            var functions = new GetProjectsQueryHandler();
 
             // Act
             response = await functions.RunHandler(request, context);
@@ -36,30 +36,30 @@ namespace Todo.Projects
             Assert.NotEmpty(response.Body);
         }
 
-        //[Fact]
-        //public async Task TestGetByIdMethod()
-        //{
-        //    // Arrange
-        //    TestLambdaContext context;
-        //    APIGatewayProxyRequest request;
-        //    APIGatewayProxyResponse response;
+        [Fact]
+        public async Task TestGetByIdMethod()
+        {
+            // Arrange
+            TestLambdaContext context;
+            APIGatewayProxyRequest request;
+            APIGatewayProxyResponse response;
 
-        //    request = new APIGatewayProxyRequest
-        //    {
-        //        Headers = new Dictionary<string, string>(),
-        //        Path = $"/projects/{}",
-        //        PathParameters = new Dictionary<string, string>()
-        //    };
-        //    context = new TestLambdaContext();
-        //    var functions = new GetProjectQuery();
+            request = new APIGatewayProxyRequest
+            {
+                Headers = new Dictionary<string, string>(),
+                Path = $"/projects/0829c6f6-0cce-4c84-9d3b-dad62b533148",
+                PathParameters = new Dictionary<string, string> { { "projectId", "0829c6f6-0cce-4c84-9d3b-dad62b533148"} }
+            };
+            context = new TestLambdaContext();
+            var functions = new GetProjectQueryHandler();
 
-        //    // Act
-        //    response = await functions.RunHandler(request, context);
+            // Act
+            response = await functions.RunHandler(request, context);
 
-        //    // Assert
-        //    Assert.Equal(200, response.StatusCode);
-        //    Assert.NotEmpty(response.Body);
-        //}
+            // Assert
+            Assert.Equal(200, response.StatusCode);
+            Assert.NotEmpty(response.Body);
+        }
 
         [Fact]
         public async Task TestCreateMethod()
@@ -71,8 +71,6 @@ namespace Todo.Projects
             string json = System.Text.Json.JsonSerializer.Serialize(new
             {
                 Title = "Hello World",
-                Type = ProjectType.List.ToString(),
-                Status = Status.Active.ToString(),
                 Priority = Prioritization.High.ToString(),
                 PercentageCompleted = 50
             });
@@ -84,7 +82,7 @@ namespace Todo.Projects
                 Path = "/projects"
             };
             context = new TestLambdaContext();
-            var functions = new CreateProjectCommand();
+            var functions = new CreateProjectCommandHandler();
 
             // Act
             response = await functions.RunHandler(request, context);
@@ -105,8 +103,6 @@ namespace Todo.Projects
             string json = System.Text.Json.JsonSerializer.Serialize(new
             {
                 Title = "Hello World",
-                Type = ProjectType.List.ToString(),
-                Status = Status.Active.ToString(),
                 Priority = Prioritization.High.ToString(),
                 PercentageCompleted = 50
             });
@@ -120,8 +116,8 @@ namespace Todo.Projects
             };
 
             context = new TestLambdaContext();
-            var createCommand = new CreateProjectCommand();
-            var deleteCommand = new DeleteProjectCommand();
+            var createCommand = new CreateProjectCommandHandler();
+            var deleteCommand = new DeleteProjectCommandHandler();
 
             // Act
             response = await createCommand.RunHandler(request, context);

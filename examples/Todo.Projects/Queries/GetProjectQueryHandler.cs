@@ -1,15 +1,14 @@
-using Amazon.Lambda.Core;
+using Lambda.EventSource;
 using LambdaCQRS;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using Todo.Projects.Commands;
 using Todo.Projects.Domain;
+using Todo.Projects.Dtos;
 
-// Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
-[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
 namespace Todo.Projects.Queries
 {
-    public class GetProjectsQuery : ApiGatewayQueryHandler
+    public class GetProjectQueryHandler : ApiGatewayQueryHandler
     {
         protected override Task RegisterHandlerServices(IServiceCollection services)
         {
@@ -20,14 +19,19 @@ namespace Todo.Projects.Queries
         protected override async Task<HandlerResponse> QueryHandler()
         {
             IProjectRepository repository = base.Services.GetRequiredService<IProjectRepository>();
+
             if (!this.ProxyRequest.Headers.TryGetValue("username", out string username))
             {
                 username = "janedoe";
             }
+            string projectId = base.ProxyRequest.PathParameters["projectId"];
 
-            Project[] projects = await repository.GetProjectsForUserAsync(username);
+            Project project = await repository.GetProjectByIdForUserAsync(username, projectId);
+            GetProjectDto result = new GetProjectDto(project);
 
-            return this.StatusOk(projects);
+            //var bus = new EventBus();
+            //await bus.PublishMessage(result, "TestPartition", "stream-name-from-config-here");
+            return this.StatusOk(result);
         }
     }
 }

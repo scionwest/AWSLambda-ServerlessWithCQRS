@@ -13,6 +13,7 @@
     <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.3.101.88" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Lambda.EventSource\Lambda.EventSource.csproj" />
     <ProjectReference Include="..\..\src\LambdaCQRS.Core\LambdaCQRS.Core.csproj" />
   </ItemGroup>
   <ItemGroup>

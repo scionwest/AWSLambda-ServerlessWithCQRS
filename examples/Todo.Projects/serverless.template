@@ -5,6 +5,117 @@
 
   "Resources": {
 
+    "ProjectStream": {
+      "Type": "AWS::Kinesis::Stream",
+      "Properties": {
+        "ShardCount": 1
+      }
+    },
+
+    "ProjectStreamArchiveBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "VersioningConfiguration": {
+          "Status": "Enabled"
+        }
+      }
+    },
+
+    "ProjectFirehoseRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "firehose.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole",
+              "Condition": {
+                "StringEquals": {
+                  "sts:ExternalId": { "Ref": "AWS::AccountId" }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+
+    "ProjectFirehosePolicy": {
+      "Type": "AWS::IAM::Policy",
+      "DependsOn": [ "ProjectFirehoseRole", "ProjectStream", "ProjectStreamArchiveBucket" ],
+      "Properties": {
+        "PolicyName": { "Ref": "AWS::StackName" },
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:AbortMultipartUpload",
+                "s3:GetBucketLocation",
+                "s3:GetObject",
+                "s3:ListBucket",
+                "s3:ListBucketMultipartUploads",
+                "s3:PutObject"
+              ],
+              "Resource": [
+                { "Fn::Join": ["", [ "arn:aws:s3:::", { "Ref": "ProjectStreamArchiveBucket" } ] ] },
+                { "Fn::Join": ["", [ "arn:aws:s3:::", { "Ref": "ProjectStreamArchiveBucket" }, "*" ] ] }
+              ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "kinesis:DescribeStream",
+                "kinesis:GetShardIterator",
+                "kinesis:GetRecords"
+              ],
+              "Resource": { "Fn::GetAtt": [ "ProjectStream", "Arn" ] }
+            }
+          ]
+        },
+        "Roles": [ { "Ref": "ProjectFirehoseRole" } ]
+      }
+    },
+
+    "ProjectFirehose": {
+      "Type": "AWS::KinesisFirehose::DeliveryStream",
+      "DependsOn": "ProjectFirehosePolicy",
+      "Properties": {
+        "DeliveryStreamType": "KinesisStreamAsSource",
+        "KinesisStreamSourceConfiguration": {
+          "KinesisStreamARN": { "Fn::GetAtt": [ "ProjectStream", "Arn" ] },
+          "RoleARN": { "Fn::GetAtt": [ "ProjectFirehoseRole", "Arn" ] }
+        },
+        "ExtendedS3DestinationConfiguration": {
+          "CompressionFormat": "UNCOMPRESSED",
+          "BucketARN": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:s3:::",
+                { "Ref": "ProjectStreamArchiveBucket" }
+              ]
+            ]
+          },
+          "BufferingHints": {
+            "IntervalInSeconds": "60",
+            "SizeInMBs": "5"
+          },
+          "Prefix": "firehose/",
+          "RoleARN": { "Fn::GetAtt": [ "ProjectFirehoseRole", "Arn" ] },
+          "ProcessingConfiguration": {
+            "Enabled": "false"
+          }
+        }
+      }
+    },
+
     "CreateProjectCommand": {
       "Type": "AWS::Serverless::Function",
       "Properties": {
@@ -126,9 +237,13 @@
   },
 
 	"Outputs" : {
-		"ApiURL" : {
-			"Description" : "API endpoint URL for Prod environment",
-			"Value" : { "Fn::Sub" : "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/" }
-		}
+    "ApiURL": {
+      "Description": "API endpoint URL for Prod environment",
+      "Value": { "Fn::Sub": "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/" }
+    },
+    "StreamName": {
+      "Description": "Kinesis stream for Projects",
+      "Value": { "Ref":  "ProjectStream" }
+    }
 	}
 }
